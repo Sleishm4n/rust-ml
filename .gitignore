@@ -1,0 +1,30 @@
+# Rust build output
+/target/
+
+# Compiled binaries
+*.exe
+*.out
+*.app
+*.dll
+*.so
+*.dylib
+
+# Debug symbols
+*.pdb
+
+# Rust package lock (keep for binaries, ignore for libraries if desired)
+# Cargo.lock
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
