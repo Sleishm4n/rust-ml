@@ -13,7 +13,7 @@
 *.pdb
 
 # Rust package lock (keep for binaries, ignore for libraries if desired)
-# Cargo.lock
+Cargo.lock
 
 # IDE / Editor files
 .vscode/
