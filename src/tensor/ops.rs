@@ -1,9 +1,15 @@
 use crate::tensor::Matrix;
 use std::iter::zip;
 
-pub fn square(x: f32) -> f32 { x * x }
-pub fn cube(x: f32) -> f32 { x * x * x }
-pub fn add_scalars(a: f32, b: f32) -> f32 { a + b }
+pub fn square(x: f32) -> f32 {
+    x * x
+}
+pub fn cube(x: f32) -> f32 {
+    x * x * x
+}
+pub fn add_scalars(a: f32, b: f32) -> f32 {
+    a + b
+}
 
 impl Matrix {
     pub fn scale_inplace(&mut self, n: f32) {
@@ -165,5 +171,107 @@ impl Matrix {
 
     pub fn elementwise_cube(&self) -> Matrix {
         self.map(cube)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_add() {
+        let a = Matrix::from_vec(2, 2, vec![1.0, 2.0, 3.0, 4.0]);
+        let b = Matrix::from_vec(2, 2, vec![5.0, 6.0, 7.0, 8.0]);
+        let result = a.add(&b);
+        assert_eq!(result.data, vec![6.0, 8.0, 10.0, 12.0]);
+    }
+
+    #[test]
+    fn test_sub() {
+        let a = Matrix::from_vec(2, 2, vec![1.0, 4.0, 3.0, 4.0]);
+        let b = Matrix::from_vec(2, 2, vec![5.0, 6.0, 7.0, 8.0]);
+        let result = b.sub(&a);
+        assert_eq!(result.data, vec![4.0, 2.0, 4.0, 4.0]);
+    }
+
+    #[test]
+    fn test_scale() {
+        let a = Matrix::from_vec(2, 2, vec![1.0, 2.0, 3.0, 4.0]);
+        let result = a.scale(2.0);
+        assert_eq!(result.data, vec![2.0, 4.0, 6.0, 8.0]);
+    }
+
+    #[test]
+    fn test_scale_inplace() {
+        let mut a = Matrix::from_vec(2, 2, vec![1.0, 2.0, 3.0, 4.0]);
+        a.scale_inplace(2.0);
+        assert_eq!(a.data, vec![2.0, 4.0, 6.0, 8.0]);
+    }
+
+    #[test]
+    fn test_matmul() {
+        let a = Matrix::from_vec(2, 2, vec![1.0, 2.0, 3.0, 4.0]);
+        let b = Matrix::from_vec(2, 2, vec![5.0, 6.0, 7.0, 8.0]);
+        let result = a.matmul(&b);
+        assert_eq!(result.data, vec![19.0, 22.0, 43.0, 50.0]);
+    }
+
+    #[test]
+    fn test_transpose() {
+        let a = Matrix::from_vec(2, 3, vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+        let result = a.transpose();
+        assert_eq!(result.rows, 3);
+        assert_eq!(result.cols, 2);
+        assert_eq!(result.data, vec![1.0, 4.0, 2.0, 5.0, 3.0, 6.0]);
+    }
+
+    #[test]
+    fn test_sum() {
+        let a = Matrix::from_vec(2, 2, vec![1.0, 1.0, 1.0, 1.0]);
+        let result = a.sum();
+        assert_eq!(result, 4.0);
+    }
+
+    #[test]
+    fn test_rowsum() {
+        let a = Matrix::from_vec(2, 2, vec![1.0, 1.0, 1.0, 1.0]);
+        let result = a.rowsum(0);
+        assert_eq!(result, 2.0);
+    }
+
+    #[test]
+    fn test_colsum() {
+        let a = Matrix::from_vec(2, 2, vec![1.0, 1.0, 1.0, 1.0]);
+        let result = a.colsum(0);
+        assert_eq!(result, 2.0);
+    }
+
+    #[test]
+    fn test_rowmean() {
+        let a = Matrix::from_vec(2, 2, vec![1.0, 1.0, 1.0, 1.0]);
+        let result = a.rowmean(0);
+        assert_eq!(result, 1.0);
+    }
+
+    #[test]
+    fn test_colmean() {
+        let a = Matrix::from_vec(2, 2, vec![1.0, 1.0, 1.0, 1.0]);
+        let result = a.colmean(0);
+        assert_eq!(result, 1.0);
+    }
+
+    #[test]
+    fn test_map() {
+        let a = Matrix::from_vec(2, 2, vec![2.0, 2.0, 2.0, 2.0]);
+        let result = a.map(cube);
+        assert_eq!(result.data, vec![8.0, 8.0, 8.0, 8.0]);
+    }
+
+    #[test]
+    fn test_zipmap() {
+        let a = Matrix::from_vec(2, 2, vec![2.0, 2.0, 2.0, 2.0]);
+        let b = Matrix::from_vec(2, 2, vec![1.0, 1.0, 1.0, 1.0]);
+        let result = a.zip_map(&b, add_scalars);
+        assert_eq!(result.data, vec![3.0, 3.0, 3.0, 3.0]);
     }
 }

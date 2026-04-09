@@ -39,6 +39,7 @@ impl Matrix {
     }
 }
 
+#[allow(dead_code)]
 fn main() {
     println!("matrix crate main");
 }
