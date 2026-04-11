@@ -149,7 +149,7 @@ impl Matrix {
         Matrix::from_vec(self.rows, self.cols, vec)
     }
 
-    pub fn zip_map(&self, other: &Matrix, f: fn(f32, f32) -> f32) -> Matrix {
+    pub fn zip_map<F: Fn(f32, f32) -> f32>(&self, other: &Matrix, f: F) -> Matrix {
         assert_eq!(self.rows, other.rows);
         assert_eq!(self.cols, other.cols);
 
