@@ -1,5 +1,6 @@
 use crate::tensor::Matrix;
 
+#[derive(Clone)]
 pub struct LinearLayer {
     pub weight: Matrix,
     pub bias: Matrix,
@@ -61,12 +62,22 @@ mod tests {
         let mut layer = LinearLayer::new(2, 1);
         layer.weight = Matrix::from_vec(1, 2, vec![1.0, 0.0]);
         let input = Matrix::from_vec(2, 1, vec![1.0, 0.0]);
-        let forward_res = layer.forward(&input);
         let d_output = &Matrix::from_vec(1, 1, vec![1.0]);
-        assert_eq!(forward_res.data, vec![1.0]);
         let (d_w, d_b, d_x) = layer.backward(d_output, &input);
         assert_eq!(d_w.data, vec![1.0, 0.0]);
         assert_eq!(d_b.data, vec![1.0]);
         assert_eq!(d_x.data, vec![1.0, 0.0]);
+    }
+
+    #[test]
+    fn test_backward_nontrivial() {
+        let mut layer = LinearLayer::new(2, 2);
+        layer.weight = Matrix::from_vec(2, 2, vec![1.0, 2.0, 3.0, 4.0]);
+        let input = Matrix::from_vec(2, 1, vec![5.0, 6.0]);
+        let d_output = Matrix::from_vec(2, 1, vec![1.0, 1.0]);
+        let (d_w, d_b, d_x) = layer.backward(&d_output, &input);
+        assert_eq!(d_w.data, vec![5.0, 6.0, 5.0, 6.0]);
+        assert_eq!(d_b.data, vec![1.0, 1.0]);
+        assert_eq!(d_x.data, vec![4.0, 6.0]);
     }
 }

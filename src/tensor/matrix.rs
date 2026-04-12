@@ -2,7 +2,7 @@
 pub struct Matrix {
     pub rows: usize,
     pub cols: usize,
-    pub(crate) data: Vec<f32>,
+    pub data: Vec<f32>,
 }
 
 impl Matrix {
