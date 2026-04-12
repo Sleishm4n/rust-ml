@@ -4,7 +4,7 @@ use rust_ml::nn::linear::{LinearLayer};
 
 fn main() {
     let w = Matrix::rand_range(3, 3, -10.0, 10.0);
-    let layer = LinearLayer::new_rand(3, 1);
+    let mut layer = LinearLayer::new_rand(3, 1);
 
     println!("Original Matrix:");
     w.display();

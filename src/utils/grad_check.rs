@@ -6,7 +6,7 @@ pub fn gradient_check(layer: &LinearLayer, input: &Matrix, target: &Matrix, eps:
     let mut layer_copy = layer.clone();
     let forward_res = layer_copy.forward(input);
     let d_output = d_mse(&forward_res, target);
-    let (d_w, _d_b, _d_x) = layer_copy.backward(&d_output, input);
+    let (d_w, _d_b, _d_x) = layer_copy.backward(&d_output);
 
     for i in 0..layer_copy.weight.data.len() {
         layer_copy.weight.data[i] += eps;
