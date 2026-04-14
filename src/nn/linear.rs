@@ -26,7 +26,7 @@ impl LinearLayer {
 
     pub fn new_rand(in_features: usize, out_features: usize) -> LinearLayer {
         LinearLayer {
-            weight: Matrix::rand_range(out_features, in_features, -0.5, 0.5),
+            weight: Matrix::rand_range(out_features, in_features, -0.01, 0.01),
             bias: Matrix::new(out_features, 1),
             in_features,
             out_features,

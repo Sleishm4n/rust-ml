@@ -1,5 +1,5 @@
 use crate::tensor::Matrix;
-use std::iter::zip;
+use std::{f32::INFINITY, iter::zip};
 
 pub fn square(x: f32) -> f32 {
     x * x
@@ -9,6 +9,10 @@ pub fn cube(x: f32) -> f32 {
 }
 pub fn add_scalars(a: f32, b: f32) -> f32 {
     a + b
+}
+
+pub fn exp(x: f32) -> f32 {
+    x.exp()
 }
 
 impl Matrix {
@@ -139,7 +143,18 @@ impl Matrix {
         total / (self.rows) as f32
     }
 
-    pub fn map(&self, f: fn(f32) -> f32) -> Matrix {
+    pub fn mat_max(&self) -> f32 {
+        let mut max = -INFINITY;
+
+        for val in &self.data {
+            if val > &max  {
+                max = *val;
+            }
+        }
+        max
+    }
+
+    pub fn map<F: Fn(f32) -> f32>(&self, f: F) -> Matrix {
         let mut vec = Vec::with_capacity(self.data.len());
 
         for val in &self.data {
