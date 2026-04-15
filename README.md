@@ -1,17 +1,58 @@
 # rust-ml 
 
 A neural network built from scratch in Rust
+
 The goal is to understand how they are implemented and how they fundamentally work
 This involves understanding every operation from the maths to the memory layout
 
-The validation target at the current stage is a network that solves XOR
+At the current stage, the network solves MNIST at 97% accurarcy 
+
+---
+
+## Results
+
+**Initial loss: 2.3038125**
+ 
+| Epoch | Loss   | Train Accuracy |
+|-------|--------|----------------|
+| 0     | 0.2604 | 92.26%         |
+| 1     | 0.1034 | 96.91%         |
+| 2     | 0.0709 | 97.89%         |
+| 3     | 0.0527 | 98.44%         |
+| 4     | 0.0394 | 98.89%         |
+ 
+**Test accuracy: 97.27%**
+
+---
+
+## Network Architecture
+ 
+```
+Input (784)
+  └─ LinearLayer (784 → 128)
+  └─ ReLU
+  └─ LinearLayer (128 → 10)
+  └─ Softmax (implicit via cross-entropy loss)
+```
+Trained with SGD, learning rate `0.01`, categorical cross-entropy loss, 5 epochs over the full 60,000 training examples.
 
 ---
 
 ## Project Structure
  
 ```
+data/
+├── mnist/
+│   ├── train-images.idx3-ubyte
+│   ├── ...
 src/
+├── data/
+│   ├── mnist.rs # Load images and labels
+│   ├── mod.rs
+├── loss /
+│   ├── cross_entropy.rs
+│   ├── mse.rs # mean squared error
+│   ├── mod.rs
 ├── tensor/
 │   ├── matrix.rs   # Matrix struct and core operations
 │   ├── ops.rs
@@ -19,11 +60,32 @@ src/
 │   └── mod.rs
 ├── nn/
 │   ├── activation.rs  # ReLU, sigmoid, tanh
-│   ├── linear.rs      # LinearLayer (forward pass)
+│   ├── linear.rs      # LinearLayer (forward pass, backward pass, sgd_update)
+│   ├── network.rs # Collection of network layers
+│   ├── softmax.rs # Softmax function
 │   └── mod.rs
+├── utils /
+│   ├── lib.rs
 examples/
-└── basics.rs
+│   ├── xor.rs
+│   ├── mnist.rs
+│   ├── basics.rs
+└──────
 ```
+---
+ 
+## Getting the Data
+ 
+The MNIST binary files are not included in this repo. Download them from the [Kaggle MNIST dataset](https://www.kaggle.com/datasets/hojjatk/mnist-dataset), and place them in `data/mnist/`:
+ 
+```
+data/mnist/train-images.idx3-ubyte
+data/mnist/train-labels.idx1-ubyte
+data/mnist/t10k-images.idx3-ubyte
+data/mnist/t10k-labels.idx1-ubyte
+```
+ 
+---
 
 ## What's Implemented
  
@@ -36,11 +98,18 @@ examples/
  
 **Activation functions (`src/nn/activation.rs`)**
 - ReLU, sigmoid, tanh
+- Derivatives of all the above
  
 **LinearLayer (`src/nn/linear.rs`)**
 - Weight shape: `(out_features × in_features)`
 - Bias stored as `Matrix`
 - `forward(&input)` computes `W·x + b`
+
+**Network (`src/nn/network.rs`)**
+- Stores a vector of layers (`Vec<Box<dyn Layer>>`)
+- Forward, Backward and Update
+
+
  
 ## Dependencies
  
@@ -56,6 +125,8 @@ Everything else is standard library.
  
 ```bash
 cargo run --example basics
+cargo run --example xor
+cargo run --example mnist
 cargo test
 ```
 
