@@ -27,5 +27,11 @@ impl Layer for SoftmaxLayer {
         s.zip_map(&shifted, |a, b| a * b)
     }
 
-    fn update(&mut self, _lr: f32) {}
+    fn get_params(&self) -> Vec<Matrix> {
+        vec![]
+    }
+    fn get_grads(&self) -> Vec<Matrix> {
+        vec![]
+    }
+    fn set_params(&mut self, _params: Vec<Matrix>) {}
 }

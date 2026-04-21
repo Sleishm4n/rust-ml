@@ -1,6 +1,6 @@
 use crate::loss::mse::{d_mse, mse};
 use crate::nn::linear::LinearLayer;
-use crate::tensor::Matrix;
+use crate::matrix::Matrix;
 
 pub fn gradient_check(layer: &LinearLayer, input: &Matrix, target: &Matrix, eps: f32) {
     let mut layer_copy = layer.clone();

@@ -1,4 +1,4 @@
-use crate::tensor::Matrix;
+use crate::matrix::Matrix;
 
 pub fn mse(output: &Matrix, target: &Matrix) -> f32 {
     let mut total: f32 = 0.0;

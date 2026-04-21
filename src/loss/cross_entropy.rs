@@ -1,4 +1,4 @@
-use crate::tensor::Matrix;
+use crate::matrix::Matrix;
 
 pub fn cross_entropy(output: &Matrix, target: &Matrix) -> f32 {
     let max = output.mat_max();

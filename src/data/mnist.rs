@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::Read;
 
-use crate::tensor::Matrix;
+use crate::matrix::Matrix;
 
 pub fn load_images(path: &str) -> Vec<Matrix> {
     let mut file = File::open(path).expect("Could not open file");

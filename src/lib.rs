@@ -1,7 +1,8 @@
-pub mod tensor;
+pub mod matrix;
 pub mod nn;
 pub mod loss;
 pub mod utils;
 pub mod data;
+pub mod optimiser;
 
-pub use tensor::matrix::Matrix;
+pub use matrix::matrix::Matrix;

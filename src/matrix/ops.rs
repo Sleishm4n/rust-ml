@@ -1,4 +1,4 @@
-use crate::tensor::Matrix;
+use crate::matrix::Matrix;
 use std::{f32::INFINITY, iter::zip};
 
 pub fn square(x: f32) -> f32 {

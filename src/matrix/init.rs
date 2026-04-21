@@ -1,4 +1,4 @@
-use crate::tensor::Matrix;
+use crate::matrix::Matrix;
 use rand::prelude::*;
 
 impl Matrix {

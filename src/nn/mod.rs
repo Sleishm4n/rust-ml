@@ -1,4 +1,4 @@
-use crate::tensor::Matrix;
+use crate::matrix::Matrix;
 
 pub mod activation;
 pub mod linear;
@@ -8,5 +8,7 @@ pub mod softmax;
 pub trait Layer {
     fn forward_pass(&mut self, input: &Matrix) -> Matrix;
     fn backward_pass(&mut self, d_output: &Matrix) -> Matrix;
-    fn update(&mut self, lr: f32);
+    fn set_params(&mut self, params: Vec<Matrix>);
+    fn get_params(&self) -> Vec<Matrix>;
+    fn get_grads(&self) -> Vec<Matrix>; 
 }

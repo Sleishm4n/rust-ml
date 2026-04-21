@@ -1,4 +1,4 @@
-use crate::{nn::Layer, tensor::Matrix};
+use crate::{nn::Layer, matrix::Matrix};
 
 #[derive(Clone)]
 pub struct LinearLayer {
@@ -47,10 +47,9 @@ impl LinearLayer {
         let d_x = self.weight.transpose().matmul(d_output);
         (d_w, d_b, d_x)
     }
-
-    pub fn sgd_update(&mut self, d_w: &Matrix, d_b: &Matrix, lr: f32) {
-        self.weight = self.weight.sub(&d_w.scale(lr));
-        self.bias = self.bias.sub(&d_b.scale(lr));
+    
+    pub fn get_weights_and_bias(&self) -> (&Matrix, &Matrix) {
+        (&self.weight, &self.bias)
     }
 }
 
@@ -66,10 +65,24 @@ impl Layer for LinearLayer {
         d_x
     }
 
-    fn update(&mut self, lr: f32) {
-        let d_w = self.d_weight.as_ref().unwrap().clone();
-        let d_b = self.d_bias.as_ref().unwrap().clone();
-        self.sgd_update(&d_w, &d_b, lr);
+    fn get_params(&self) -> Vec<Matrix> {
+        vec![self.weight.clone(), self.bias.clone()]
+    }
+    fn get_grads(&self) -> Vec<Matrix> {
+        vec![
+            self.d_weight
+                .as_ref()
+                .cloned()
+                .unwrap_or_else(|| Matrix::new(self.out_features, self.in_features)),
+            self.d_bias
+                .as_ref()
+                .cloned()
+                .unwrap_or_else(|| Matrix::new(self.out_features, 1)),
+        ]
+    }
+    fn set_params(&mut self, params: Vec<Matrix>) {
+        self.weight = params[0].clone();
+        self.bias = params[1].clone();
     }
 }
 

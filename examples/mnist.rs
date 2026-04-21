@@ -3,6 +3,7 @@ use rust_ml::loss::cross_entropy::{cross_entropy, d_cross_entropy};
 use rust_ml::nn::activation::{d_relu, relu, ActivationLayer};
 use rust_ml::nn::linear::LinearLayer;
 use rust_ml::nn::network::Network;
+use rust_ml::optimiser::adam::Adam;
 
 fn main() {
     let mut network = Network::new(vec![
@@ -10,8 +11,8 @@ fn main() {
         Box::new(ActivationLayer::new(relu, d_relu)),
         Box::new(LinearLayer::new_rand(128, 10)),
     ]);
-    let lr: f32 = 0.01;
-    let epochs = 5;
+    let mut optimiser = Adam::new(0.001, 0.9, 0.999, 1e-8);
+    let epochs = 10;
 
     let images = load_images("data/mnist/train-images.idx3-ubyte");
     let labels = load_labels("data/mnist/train-labels.idx1-ubyte");
@@ -35,7 +36,7 @@ fn main() {
             let loss = cross_entropy(&y_hat, &y_mat);
             let d_out = d_cross_entropy(&y_hat, &y_mat);
             network.backward(&d_out);
-            network.update(lr);
+            network.update(&mut optimiser);
             total_loss += loss;
 
             let predicted = y_hat

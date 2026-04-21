@@ -2,7 +2,8 @@ use rust_ml::loss::mse::{d_mse, mse};
 use rust_ml::nn::activation::{d_sigmoid, sigmoid, ActivationLayer};
 use rust_ml::nn::linear::LinearLayer;
 use rust_ml::nn::network::Network;
-use rust_ml::tensor::Matrix;
+use rust_ml::optimiser::adam::Adam;
+use rust_ml::matrix::Matrix;
 
 fn main() {
     let mut network = Network::new(vec![
@@ -10,7 +11,7 @@ fn main() {
         Box::new(ActivationLayer::new(sigmoid, d_sigmoid)),
         Box::new(LinearLayer::new_rand(2, 1)),
     ]);
-    let lr = 0.1;
+    let mut optimiser = Adam::new(0.001, 0.9, 0.999, 1e-8);
     let epochs = 10000;
 
     // XOR inputs and targets
@@ -27,7 +28,7 @@ fn main() {
             let loss = mse(&y_hat, &y_mat);
             let d_out = d_mse(&y_hat, &y_mat);
             network.backward(&d_out);
-            network.update(lr);
+            network.update(&mut optimiser);
             total_loss += loss;
         }
 

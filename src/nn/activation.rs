@@ -1,4 +1,4 @@
-use crate::{Matrix, nn::Layer};
+use crate::{nn::Layer, Matrix};
 
 pub fn relu(x: f32) -> f32 {
     if x > 0.0 {
@@ -59,5 +59,11 @@ impl Layer for ActivationLayer {
         input.map(self.derivative).zip_map(d_output, |d, g| d * g)
     }
 
-    fn update(&mut self, _lr: f32) {}
+    fn get_params(&self) -> Vec<Matrix> {
+        vec![]
+    }
+    fn get_grads(&self) -> Vec<Matrix> {
+        vec![]
+    }
+    fn set_params(&mut self, _params: Vec<Matrix>) {}
 }

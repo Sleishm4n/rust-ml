@@ -1,4 +1,4 @@
-use crate::{nn::Layer, Matrix};
+use crate::{nn::Layer, optimiser::Optimiser, Matrix};
 
 pub struct Network {
     layers: Vec<Box<dyn Layer>>,
@@ -25,9 +25,26 @@ impl Network {
         current
     }
 
-    pub fn update(&mut self, lr: f32) {
+    pub fn update(&mut self, optimiser: &mut dyn Optimiser) {
+        let mut all_params: Vec<Matrix> = vec![];
+        let mut all_grads: Vec<Matrix> = vec![];
+        let mut counts: Vec<usize> = vec![];
+
         for layer in &mut self.layers {
-            layer.update(lr);
+            let params = layer.get_params();
+            let grads = layer.get_grads();
+            counts.push(params.len());
+            all_params.extend(params);
+            all_grads.extend(grads);
+        }
+
+        optimiser.step(&mut all_params, &all_grads);
+
+        // redistribute back
+        let mut idx = 0;
+        for (layer, count) in self.layers.iter_mut().zip(counts.iter()) {
+            layer.set_params(all_params[idx..idx + count].to_vec());
+            idx += count;
         }
     }
 }

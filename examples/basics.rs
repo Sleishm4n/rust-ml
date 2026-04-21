@@ -1,4 +1,4 @@
-use rust_ml::tensor::Matrix;
+use rust_ml::matrix::Matrix;
 use rust_ml::nn::activation::{relu, sigmoid, tanh};
 use rust_ml::nn::linear::{LinearLayer};
 
