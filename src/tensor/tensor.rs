@@ -1,3 +1,4 @@
+#[derive(Clone)]
 pub struct Tensor {
     pub shape: Vec<usize>,
     pub strides: Vec<usize>,
@@ -45,7 +46,7 @@ impl Tensor {
         self.data[flat_index] = val;
     }
 
-    pub fn from_vec(shape: Vec<usize>, data: Vec<f32>) -> Tensor{
+    pub fn from_vec(shape: Vec<usize>, data: Vec<f32>) -> Tensor {
         assert_eq!(data.len(), shape.iter().product());
         let strides = Tensor::calc_strides(shape.clone());
         Tensor {
