@@ -1,7 +1,7 @@
-use crate::{nn::Layer, Matrix};
+use crate::{nn::Layer, tensor::Tensor};
 
 pub struct SoftmaxLayer {
-    pub input: Option<Matrix>,
+    pub input: Option<Tensor>,
 }
 
 impl SoftmaxLayer {
@@ -11,8 +11,8 @@ impl SoftmaxLayer {
 }
 
 impl Layer for SoftmaxLayer {
-    fn forward_pass(&mut self, input: &Matrix) -> Matrix {
-        let max = input.mat_max();
+    fn forward_pass(&mut self, input: &Tensor) -> Tensor {
+        let max = input.tensor_max();
         let exps = input.map(|x| (x - max).exp());
         let sum = exps.data.iter().sum::<f32>();
         let output = exps.map(|x| x / sum);
@@ -20,18 +20,18 @@ impl Layer for SoftmaxLayer {
         output
     }
 
-    fn backward_pass(&mut self, d_output: &Matrix) -> Matrix {
+    fn backward_pass(&mut self, d_output: &Tensor) -> Tensor {
         let s = self.input.as_ref().unwrap();
         let dot: f32 = d_output.zip_map(s, |a, b| a * b).data.iter().sum();
         let shifted = d_output.map(|x| x - dot);
         s.zip_map(&shifted, |a, b| a * b)
     }
 
-    fn get_params(&self) -> Vec<Matrix> {
+    fn get_params(&self) -> Vec<Tensor> {
         vec![]
     }
-    fn get_grads(&self) -> Vec<Matrix> {
+    fn get_grads(&self) -> Vec<Tensor> {
         vec![]
     }
-    fn set_params(&mut self, _params: Vec<Matrix>) {}
+    fn set_params(&mut self, _params: Vec<Tensor>) {}
 }

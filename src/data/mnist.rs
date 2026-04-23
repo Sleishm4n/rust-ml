@@ -1,9 +1,9 @@
 use std::fs::File;
 use std::io::Read;
 
-use crate::matrix::Matrix;
+use crate::tensor::Tensor;
 
-pub fn load_images(path: &str) -> Vec<Matrix> {
+pub fn load_images(path: &str) -> Vec<Tensor> {
     let mut file = File::open(path).expect("Could not open file");
     let mut buffer = Vec::new();
     file.read_to_end(&mut buffer).expect("Could not read file");
@@ -20,7 +20,7 @@ pub fn load_images(path: &str) -> Vec<Matrix> {
             .iter()
             .map(|&p| p as f32 / 255.0)
             .collect();
-        images.push(Matrix::from_vec(image_size, 1, pixels));
+        images.push(Tensor::from_vec(vec![image_size, 1], pixels));
     }
     images
 }
@@ -35,10 +35,10 @@ pub fn load_labels(path: &str) -> Vec<u8> {
     buffer[8..8 + num_labels].to_vec()
 }
 
-pub fn one_hot(label: u8) -> Matrix {
-    let mut mat = Matrix::new(10, 1);
-    mat.set(label as usize, 0, 1.0);
-    mat
+pub fn one_hot(label: u8) -> Tensor {
+    let mut ten = Tensor::new(vec![10, 1]);
+    ten.set(&[label as usize, 0], 1.0);
+    ten
 }
 
 #[cfg(test)]
@@ -49,8 +49,8 @@ mod test {
     fn test_loader() {
         let images = load_images("data/mnist/train-images.idx3-ubyte");
         assert_eq!(images.len(), 60000);
-        assert_eq!(images[0].rows, 784);
-        assert_eq!(images[0].cols, 1);
+        assert_eq!(images[0].shape[0], 784);
+        assert_eq!(images[0].shape[1], 1);
         assert!(images[0].data.iter().all(|&p| p >= 0.0 && p <= 1.0));
     }
 

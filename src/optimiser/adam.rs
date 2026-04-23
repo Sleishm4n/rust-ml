@@ -1,4 +1,4 @@
-use crate::{optimiser::Optimiser, Matrix};
+use crate::{optimiser::Optimiser, tensor::Tensor};
 
 pub struct Adam {
     pub alpha: f32,
@@ -6,8 +6,8 @@ pub struct Adam {
     pub beta2: f32,
     pub epsilon: f32,
     pub t: u32,
-    pub m: Vec<Matrix>,
-    pub v: Vec<Matrix>,
+    pub m: Vec<Tensor>,
+    pub v: Vec<Tensor>,
 }
 
 impl Adam {
@@ -25,10 +25,10 @@ impl Adam {
 }
 
 impl Optimiser for Adam {
-    fn step(&mut self, params: &mut Vec<Matrix>, grads: &Vec<Matrix>) {
+    fn step(&mut self, params: &mut Vec<Tensor>, grads: &Vec<Tensor>) {
         if self.m.is_empty() {
-            self.m = params.iter().map(|p| Matrix::new(p.rows, p.cols)).collect();
-            self.v = params.iter().map(|p| Matrix::new(p.rows, p.cols)).collect();
+            self.m = params.iter().map(|p| Tensor::new(p.shape.clone())).collect();
+            self.v = params.iter().map(|p| Tensor::new(p.shape.clone())).collect();
         }
         self.t += 1;
         for i in 0..params.len() {

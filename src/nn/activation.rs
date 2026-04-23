@@ -1,4 +1,4 @@
-use crate::{nn::Layer, Matrix};
+use crate::{nn::Layer, tensor::Tensor};
 
 pub fn relu(x: f32) -> f32 {
     if x > 0.0 {
@@ -35,7 +35,7 @@ pub fn d_tanh(x: f32) -> f32 {
 pub struct ActivationLayer {
     pub function: fn(f32) -> f32,
     pub derivative: fn(f32) -> f32,
-    pub input: Option<Matrix>,
+    pub input: Option<Tensor>,
 }
 
 impl ActivationLayer {
@@ -49,21 +49,21 @@ impl ActivationLayer {
 }
 
 impl Layer for ActivationLayer {
-    fn forward_pass(&mut self, input: &Matrix) -> Matrix {
+    fn forward_pass(&mut self, input: &Tensor) -> Tensor {
         self.input = Some(input.clone());
         input.map(self.function)
     }
 
-    fn backward_pass(&mut self, d_output: &Matrix) -> Matrix {
+    fn backward_pass(&mut self, d_output: &Tensor) -> Tensor {
         let input = self.input.as_ref().unwrap();
         input.map(self.derivative).zip_map(d_output, |d, g| d * g)
     }
 
-    fn get_params(&self) -> Vec<Matrix> {
+    fn get_params(&self) -> Vec<Tensor> {
         vec![]
     }
-    fn get_grads(&self) -> Vec<Matrix> {
+    fn get_grads(&self) -> Vec<Tensor> {
         vec![]
     }
-    fn set_params(&mut self, _params: Vec<Matrix>) {}
+    fn set_params(&mut self, _params: Vec<Tensor>) {}
 }

@@ -3,7 +3,7 @@ use rust_ml::nn::activation::{d_sigmoid, sigmoid, ActivationLayer};
 use rust_ml::nn::linear::LinearLayer;
 use rust_ml::nn::network::Network;
 use rust_ml::optimiser::adam::Adam;
-use rust_ml::matrix::Matrix;
+use rust_ml::tensor::Tensor;
 
 fn main() {
     let mut network = Network::new(vec![
@@ -22,8 +22,8 @@ fn main() {
         let mut total_loss = 0.0;
 
         for (x, y) in inputs.iter().zip(targets.iter()) {
-            let x_mat = Matrix::from_vec(2, 1, x.to_vec());
-            let y_mat = Matrix::from_vec(1, 1, y.to_vec());
+            let x_mat = Tensor::from_vec(vec![2, 1], x.to_vec());
+            let y_mat = Tensor::from_vec(vec![1], y.to_vec());
             let y_hat = network.forward(&x_mat);
             let loss = mse(&y_hat, &y_mat);
             let d_out = d_mse(&y_hat, &y_mat);
@@ -39,7 +39,7 @@ fn main() {
 
     println!("\nPredictions:");
     for (x, y) in inputs.iter().zip(targets.iter()) {
-        let x_mat = Matrix::from_vec(2, 1, x.to_vec());
+        let x_mat = Tensor::from_vec(vec![2, 1], x.to_vec());
         let y_hat = network.forward(&x_mat);
         println!("{:?} → {:.4} (target: {})", x, y_hat.data[0], y[0]);
     }

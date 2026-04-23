@@ -1,5 +1,5 @@
 use crate::tensor::Tensor;
-// use std::{f32::INFINITY, iter::zip};
+use std::f32::INFINITY;
 
 impl Tensor {
     pub fn add(&self, other: &Tensor) -> Tensor {
@@ -12,6 +12,17 @@ impl Tensor {
 
     pub fn scale(&self, n: f32) -> Tensor {
         self.map(|x| x * n)
+    }
+
+    pub fn tensor_max(&self) -> f32 {
+        let mut max = -INFINITY;
+
+        for val in &self.data {
+            if val > &max  {
+                max = *val;
+            }
+        }
+        max
     }
 
     pub fn matmul(&self, other: &Tensor) -> Tensor {
@@ -97,6 +108,10 @@ impl Tensor {
             index[i] = 0;
         }
         false
+    }
+
+    pub fn elementwise_square(&self) -> Tensor {
+        self.map(|x| x * x)
     }
 }
 

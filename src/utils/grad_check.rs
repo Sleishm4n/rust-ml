@@ -1,8 +1,8 @@
 use crate::loss::mse::{d_mse, mse};
 use crate::nn::linear::LinearLayer;
-use crate::matrix::Matrix;
+use crate::tensor::Tensor;
 
-pub fn gradient_check(layer: &LinearLayer, input: &Matrix, target: &Matrix, eps: f32) {
+pub fn gradient_check(layer: &LinearLayer, input: &Tensor, target: &Tensor, eps: f32) {
     let mut layer_copy = layer.clone();
     let forward_res = layer_copy.forward(input);
     let d_output = d_mse(&forward_res, target);
@@ -34,9 +34,9 @@ mod tests {
     #[test]
     fn test_gradient_check() {
         let mut layer = LinearLayer::new(2, 2);
-        layer.weight = Matrix::from_vec(2, 2, vec![0.1, 0.2, 0.3, 0.4]);
-        let input = Matrix::from_vec(2, 1, vec![1.0, 2.0]);
-        let target = Matrix::from_vec(2, 1, vec![0.5, 0.5]);
+        layer.weight = Tensor::from_vec(vec![2, 2], vec![0.1, 0.2, 0.3, 0.4]);
+        let input = Tensor::from_vec(vec![2, 1], vec![1.0, 2.0]);
+        let target = Tensor::from_vec(vec![2, 1], vec![0.5, 0.5]);
         gradient_check(&layer, &input, &target, 1e-4);
     }
 }

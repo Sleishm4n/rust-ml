@@ -1,4 +1,4 @@
-use crate::{nn::Layer, optimiser::Optimiser, Matrix};
+use crate::{nn::Layer, optimiser::Optimiser, tensor::Tensor};
 
 pub struct Network {
     layers: Vec<Box<dyn Layer>>,
@@ -9,7 +9,7 @@ impl Network {
         Network { layers }
     }
 
-    pub fn forward(&mut self, input: &Matrix) -> Matrix {
+    pub fn forward(&mut self, input: &Tensor) -> Tensor {
         let mut current = input.clone();
         for layer in &mut self.layers {
             current = layer.forward_pass(&current);
@@ -17,7 +17,7 @@ impl Network {
         current
     }
 
-    pub fn backward(&mut self, input: &Matrix) -> Matrix {
+    pub fn backward(&mut self, input: &Tensor) -> Tensor {
         let mut current = input.clone();
         for layer in self.layers.iter_mut().rev() {
             current = layer.backward_pass(&current);
@@ -26,8 +26,8 @@ impl Network {
     }
 
     pub fn update(&mut self, optimiser: &mut dyn Optimiser) {
-        let mut all_params: Vec<Matrix> = vec![];
-        let mut all_grads: Vec<Matrix> = vec![];
+        let mut all_params: Vec<Tensor> = vec![];
+        let mut all_grads: Vec<Tensor> = vec![];
         let mut counts: Vec<usize> = vec![];
 
         for layer in &mut self.layers {

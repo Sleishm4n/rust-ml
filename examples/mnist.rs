@@ -12,7 +12,7 @@ fn main() {
         Box::new(LinearLayer::new_rand(128, 10)),
     ]);
     let mut optimiser = Adam::new(0.001, 0.9, 0.999, 1e-8);
-    let epochs = 10;
+    let epochs = 5;
 
     let images = load_images("data/mnist/train-images.idx3-ubyte");
     let labels = load_labels("data/mnist/train-labels.idx1-ubyte");

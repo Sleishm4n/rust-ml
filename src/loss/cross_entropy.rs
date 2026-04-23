@@ -1,7 +1,7 @@
-use crate::matrix::Matrix;
+use crate::tensor::Tensor;
 
-pub fn cross_entropy(output: &Matrix, target: &Matrix) -> f32 {
-    let max = output.mat_max();
+pub fn cross_entropy(output: &Tensor, target: &Tensor) -> f32 {
+    let max = output.tensor_max();
     let exps = output.map(|x| (x - max).exp());
     let sum: f32 = exps.data.iter().sum();
 
@@ -15,8 +15,8 @@ pub fn cross_entropy(output: &Matrix, target: &Matrix) -> f32 {
     -loss
 }
 
-pub fn d_cross_entropy(output: &Matrix, target: &Matrix) -> Matrix {
-    let max = output.mat_max();
+pub fn d_cross_entropy(output: &Tensor, target: &Tensor) -> Tensor {
+    let max = output.tensor_max();
     let exps = output.map(|x| (x - max).exp());
     let sum: f32 = exps.data.iter().sum();
 
