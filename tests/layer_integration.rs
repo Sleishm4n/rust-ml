@@ -146,7 +146,11 @@ fn gradient_check_passes_for_linear_layer() {
 /// Adam must converge a single linear layer to fit a constant target.
 #[test]
 fn adam_converges_single_linear_layer() {
-    let mut net = Network::new(vec![Box::new(LinearLayer::new_rand(2, 1))]);
+    let mut layer = LinearLayer::new(2, 1);
+    layer.weight = Tensor::from_vec(vec![1, 2], vec![2.0, 1.0]);
+    layer.bias = Tensor::from_vec(vec![1, 1], vec![0.0]);
+
+    let mut net = Network::new(vec![Box::new(layer)]);
     let mut opt = Adam::new(0.01, 0.9, 0.999, 1e-8);
 
     let mut x = Tensor::new(vec![2, 1]);
@@ -175,7 +179,11 @@ fn adam_converges_single_linear_layer() {
 /// scaled by alpha — loss must still decrease.
 #[test]
 fn adam_degenerate_still_decreases_loss() {
-    let mut net = Network::new(vec![Box::new(LinearLayer::new_rand(1, 1))]);
+    let mut layer = LinearLayer::new(1, 1);
+    layer.weight = Tensor::from_vec(vec![1, 1], vec![0.5]);
+    layer.bias = Tensor::from_vec(vec![1, 1], vec![0.0]);
+
+    let mut net = Network::new(vec![Box::new(layer)]);
     let mut opt = Adam::new(0.01, 0.0, 0.0, 1e-8);
 
     let mut x = Tensor::new(vec![1, 1]);

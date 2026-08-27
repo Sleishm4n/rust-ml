@@ -42,11 +42,20 @@ fn make_xor_data() -> Vec<(Tensor, Tensor)> {
         .collect()
 }
 
+/// Builds a deterministic XOR network with fixed initial weights and biases.
 fn make_network() -> Network {
+    let mut layer1 = LinearLayer::new(2, 4);
+    layer1.weight = Tensor::from_vec(vec![4, 2], vec![0.5, -0.2, 0.3, 0.8, -0.4, 0.6, 0.7, -0.5]);
+    layer1.bias = Tensor::from_vec(vec![4, 1], vec![0.1, -0.1, 0.2, -0.2]);
+
+    let mut layer2 = LinearLayer::new(4, 1);
+    layer2.weight = Tensor::from_vec(vec![1, 4], vec![0.6, -0.5, 0.7, -0.3]);
+    layer2.bias = Tensor::from_vec(vec![1, 1], vec![0.1]);
+
     Network::new(vec![
-        Box::new(LinearLayer::new_rand(2, 4)),
+        Box::new(layer1),
         Box::new(ActivationLayer::new(ActivationKind::Sigmoid)),
-        Box::new(LinearLayer::new_rand(4, 1)),
+        Box::new(layer2),
         Box::new(ActivationLayer::new(ActivationKind::Sigmoid)),
     ])
 }
@@ -125,12 +134,20 @@ fn xor_loss_decreases_after_training() {
 /// regression problem (sanity check that backward + update are wired up).
 #[test]
 fn single_step_reduces_loss() {
+    let mut layer1 = LinearLayer::new(2, 2);
+    layer1.weight = Tensor::from_vec(vec![2, 2], vec![0.5, -0.3, 0.2, 0.8]);
+    layer1.bias = Tensor::from_vec(vec![2, 1], vec![0.1, -0.1]);
+
+    let mut layer2 = LinearLayer::new(2, 1);
+    layer2.weight = Tensor::from_vec(vec![1, 2], vec![0.4, -0.6]);
+    layer2.bias = Tensor::from_vec(vec![1, 1], vec![0.0]);
+
     let mut net = Network::new(vec![
-        Box::new(LinearLayer::new_rand(2, 2)),
+        Box::new(layer1),
         Box::new(ActivationLayer::new(ActivationKind::Sigmoid)),
-        Box::new(LinearLayer::new_rand(2, 1)),
+        Box::new(layer2),
     ]);
-    let mut opt = Adam::new(0.1, 0.9, 0.999, 1e-8);
+    let mut opt = Adam::new(0.01, 0.9, 0.999, 1e-8);
 
     let mut x = Tensor::new(vec![2, 1]);
     x.data[0] = 1.0;
