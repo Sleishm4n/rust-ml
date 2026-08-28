@@ -7,6 +7,28 @@
 use crate::tensor::Tensor;
 use rand::Rng;
 
+/// Xavier/Glorto uniform initialisation with a custom RNG
+///
+/// Samples uniformly from `[-limit, limit]` where
+/// `limit = sqrt(6 / (in_features + out_features))`. Returns a tensor of
+/// shape `[out_features, in_features]`
+///
+/// # Panics
+///
+/// Panics if either dimension is zero
+pub fn xavier_uniform_with_rng<R: Rng + ?Sized>(
+    in_features: usize,
+    out_features: usize,
+    rng: &mut R,
+) -> Tensor {
+    assert!(in_features > 0, "in_features must be > 0");
+    assert!(out_features > 0, "out_features must be > 0");
+
+    let denom = (in_features + out_features) as f32;
+    let limit = (6.0 / denom).sqrt();
+    Tensor::rand_range_with_rng(vec![out_features, in_features], -limit, limit, rng)
+}
+
 /// Xavier/Glorto uniform initialisation
 ///
 /// Samples uniformly from `[-limit, limit]` where
@@ -17,12 +39,36 @@ use rand::Rng;
 ///
 /// Panics if either dimension is zero
 pub fn xavier_uniform(in_features: usize, out_features: usize) -> Tensor {
+    let mut rng = rand::thread_rng();
+    xavier_uniform_with_rng(in_features, out_features, &mut rng)
+}
+
+/// Kaiming/He uniform initialisation with a custom RNG
+///
+/// Samples from a normal distribution with standard deviation
+/// `sqrt(2 / in_features)`. The factor of 2 compensates for ReLU zeroing half
+/// its inputs. Returns a tensor of shape `[out_features, in_features]`
+///
+/// # Panics
+///
+/// Panics if either dimension is zero
+pub fn kaiming_normal_with_rng<R: Rng + ?Sized>(
+    in_features: usize,
+    out_features: usize,
+    rng: &mut R,
+) -> Tensor {
     assert!(in_features > 0, "in_features must be > 0");
     assert!(out_features > 0, "out_features must be > 0");
 
-    let denom = (in_features + out_features) as f32;
-    let limit = (6.0 / denom).sqrt();
-    Tensor::rand_range(vec![out_features, in_features], -limit, limit)
+    let std = (2.0 / in_features as f32).sqrt();
+    let size = in_features * out_features;
+    let mut data = Vec::with_capacity(size);
+
+    for _ in 0..size {
+        data.push(sample_standard_normal(rng) * std);
+    }
+
+    Tensor::from_vec(vec![out_features, in_features], data)
 }
 
 /// Kaiming/He uniform initialisation
@@ -35,19 +81,8 @@ pub fn xavier_uniform(in_features: usize, out_features: usize) -> Tensor {
 ///
 /// Panics if either dimension is zero
 pub fn kaiming_normal(in_features: usize, out_features: usize) -> Tensor {
-    assert!(in_features > 0, "in_features must be > 0");
-    assert!(out_features > 0, "out_features must be > 0");
-
-    let std = (2.0 / in_features as f32).sqrt();
-    let size = in_features * out_features;
     let mut rng = rand::thread_rng();
-    let mut data = Vec::with_capacity(size);
-
-    for _ in 0..size {
-        data.push(sample_standard_normal(&mut rng) * std);
-    }
-
-    Tensor::from_vec(vec![out_features, in_features], data)
+    kaiming_normal_with_rng(in_features, out_features, &mut rng)
 }
 
 fn sample_standard_normal<R: Rng + ?Sized>(rng: &mut R) -> f32 {
@@ -62,4 +97,51 @@ fn sample_standard_normal<R: Rng + ?Sized>(rng: &mut R) -> f32 {
     let r = (-2.0 * u1.ln()).sqrt();
     let theta = 2.0 * std::f32::consts::PI * u2;
     r * theta.cos()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rand::rngs::StdRng;
+    use rand::SeedableRng;
+
+    #[test]
+    fn test_xavier_uniform_shape_and_bounds() {
+        let mut rng = StdRng::seed_from_u64(42);
+        let in_f = 100;
+        let out_f = 50;
+        let t = xavier_uniform_with_rng(in_f, out_f, &mut rng);
+
+        assert_eq!(t.shape, vec![out_f, in_f]);
+        let limit = (6.0 / (in_f + out_f) as f32).sqrt();
+
+        for &val in &t.data {
+            assert!(
+                val >= -limit && val < limit,
+                "val={val} outside limit={limit}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_kaiming_normal_shape_and_statistics() {
+        let mut rng = StdRng::seed_from_u64(42);
+        let in_f = 1000;
+        let out_f = 1000;
+        let t = kaiming_normal_with_rng(in_f, out_f, &mut rng);
+
+        assert_eq!(t.shape, vec![out_f, in_f]);
+
+        let mean: f32 = t.data.iter().sum::<f32>() / t.data.len() as f32;
+        assert!(mean.abs() < 0.01, "mean was {mean}");
+
+        let expected_var = 2.0 / in_f as f32;
+        let variance: f32 =
+            t.data.iter().map(|&x| (x - mean).powi(2)).sum::<f32>() / t.data.len() as f32;
+
+        assert!(
+            (variance - expected_var).abs() < 0.001,
+            "variance was {variance}, expected {expected_var}"
+        );
+    }
 }
